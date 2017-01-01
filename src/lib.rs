@@ -15,8 +15,11 @@ use std::convert::TryInto;
 
 use hyper::client::{Client as Hyper, IntoUrl};
 use hyper::method::Method as HyperMethod;
-use ruma_client_api::{Endpoint, Method, supported_versions};
-use url::Url;
+use ruma_client_api::{Endpoint, Method, supported_versions, r0};
+use url::{Url, Host};
+use std::io::Read;
+use ruma_identifiers::UserId;
+use std::convert::TryFrom;
 
 pub use error::Error;
 pub use session::Session;
@@ -72,5 +75,22 @@ impl Client {
         ).send()?;
 
         Ok(response.try_into()?)
+    }
+
+    /// Register as guest and set the session attributes.
+    pub fn guest_session(&mut self) -> Result<(), Error> {
+        // TODO: apply type=guest.
+        let mut response = self.hyper
+            .request(r0::account::register::Endpoint::method().into_hyper(),
+                self.homeserver_url.join(&r0::account::register::Endpoint::request_path(()))?)
+            .send()?;
+        let mut response_str = String::new();
+        response.read_to_string(&mut response_str);
+        let user_session: r0::account::register::Response = serde_json::from_str(&response_str)?;
+        let user_id = UserId::try_from(&user_session.user_id.clone())?;
+        self.session = Some(Session::new(user_session.access_token.clone(),
+            Host::Domain(user_session.home_server.clone()),
+        user_id));
+        Ok(())
     }
 }
