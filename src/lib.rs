@@ -79,10 +79,12 @@ impl Client {
 
     /// Register as guest and set the session attributes.
     pub fn guest_session(&mut self) -> Result<(), Error> {
-        // TODO: apply type=guest.
+        // TODO: Should be handled by the ruma_client_apt
+        let full_url = format!("{}?kind=guest",
+            r0::account::register::Endpoint::request_path(()));
         let mut response = self.hyper
             .request(r0::account::register::Endpoint::method().into_hyper(),
-                self.homeserver_url.join(&r0::account::register::Endpoint::request_path(()))?)
+                self.homeserver_url.join(&full_url)?)
             .send()?;
         let mut response_str = String::new();
         response.read_to_string(&mut response_str)?;
