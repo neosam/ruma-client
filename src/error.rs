@@ -2,6 +2,7 @@ use hyper::Error as HyperError;
 use serde_json::Error as SerdeJsonError;
 use url::ParseError;
 use ruma_identifiers::Error as RumaIdentifiersError;
+use std::io::Error as IOError;
 
 /// An error that occurs during client operations.
 #[derive(Debug)]
@@ -13,7 +14,9 @@ pub enum Error {
     /// An error when serializing or deserializing a value.
     SerdeJson(SerdeJsonError),
     /// An error accured while parsing the ruma identifiers.
-    RumaIdentifiers(RumaIdentifiersError)
+    RumaIdentifiers(RumaIdentifiersError),
+    /// General IO Error
+    IO(IOError)
 }
 
 impl From<HyperError> for Error {
@@ -40,3 +43,8 @@ impl From<RumaIdentifiersError> for Error {
     }
 }
 
+impl From<IOError> for Error {
+    fn from(error: IOError) -> Error {
+        Error::IO(error)
+    }
+}

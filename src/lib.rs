@@ -85,7 +85,7 @@ impl Client {
                 self.homeserver_url.join(&r0::account::register::Endpoint::request_path(()))?)
             .send()?;
         let mut response_str = String::new();
-        response.read_to_string(&mut response_str);
+        response.read_to_string(&mut response_str)?;
         let user_session: r0::account::register::Response = serde_json::from_str(&response_str)?;
         let user_id = UserId::try_from(&user_session.user_id.clone())?;
         self.session = Some(Session::new(user_session.access_token.clone(),
