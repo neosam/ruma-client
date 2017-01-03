@@ -85,6 +85,7 @@ impl Client {
         let mut response = self.hyper
             .request(r0::account::register::Endpoint::method().into_hyper(),
                 self.homeserver_url.join(&full_url)?)
+            .body("{}")
             .send()?;
         let mut response_str = String::new();
         response.read_to_string(&mut response_str)?;
