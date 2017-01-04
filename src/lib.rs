@@ -90,9 +90,9 @@ impl Client {
         let mut response_str = String::new();
         response.read_to_string(&mut response_str)?;
         let user_session: r0::account::register::Response = serde_json::from_str(&response_str)?;
-        let user_id = UserId::try_from(&user_session.user_id.clone())?;
-        self.session = Some(Session::new(user_session.access_token.clone(),
-            Host::Domain(user_session.home_server.clone()),
+        let user_id = UserId::try_from(&user_session.user_id)?;
+        self.session = Some(Session::new(user_session.access_token,
+            Host::Domain(user_session.home_server),
         user_id));
         Ok(())
     }
